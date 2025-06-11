@@ -1,0 +1,33 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+db.sqlite3
+*.sqlite3
+*.db
+media/
+staticfiles/
+.env          
+
+# Migrations cache
+**/migrations/__pycache__/
+
+
+.vscode/
+
+# Pytest / Coverage
+htmlcov/
+coverage.xml
+.cache/
+.pytest_cache/
+
+# Windows
+Thumbs.db
