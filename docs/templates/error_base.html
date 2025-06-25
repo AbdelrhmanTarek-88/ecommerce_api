@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}Error{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        h1 {
+            font-size: 80px;
+            color: #f44336;
+        }
+
+        p {
+            font-size: 20px;
+            color: #555;
+        }
+
+        a {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .error-container {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        {% block error_code %}{% endblock %}
+        {% block message %}{% endblock %}
+        {% block link %}
+        <a href="/">Go to Documentation</a>
+        {% endblock %}
+    </div>
+</body>
+
+</html>

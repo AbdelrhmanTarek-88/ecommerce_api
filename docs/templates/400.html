@@ -1,0 +1,8 @@
+{% extends 'error_base.html' %}
+
+{% block title %}Bad Request{% endblock %}
+{% block error_code %}<h1>400</h1>{% endblock %}
+{% block message %}
+<p>The server could not understand the request due to invalid syntax.</p>
+{% endblock %}
+{% block link %}<a href="/">Return to Home</a>{% endblock %}

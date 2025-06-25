@@ -1,0 +1,1300 @@
+{
+  "description": "This file serves as a comprehensive test suite and reference document for all API endpoints in the application. It includes sample requests, expected responses, and required headers for authentication and authorization across the following modules: authentication (authn), user management (users), product management (products), order processing (orders), favorites management (favorites), and cart management (cart). Use this file to validate endpoint functionality, test API behavior, and ensure consistency during development and testing phases.",
+  "version": "1.0v",
+  "last_updated": "2025-06-05",
+  "author": "Abdelrhman Tarek",
+  "THIS FILE TO TEST ALL ENDPOINTS": {
+    "admin": {
+      "Admin Dashboard": {
+        "API": "/admin/",
+        "Method": "",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {}
+        }
+      }
+    },
+    "authn": {
+      "Register User": {
+        "API": "/api/authn/register/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Body": {
+          "first_name": "fName",
+          "last_name": "lastName",
+          "username": "fNamelastName",
+          "email": "fName@example.com",
+          "password": "password",
+          "confirm_password": "password"
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "full_name": "fName lastName",
+            "username": "fNamelastName",
+            "email": "fName@example.com",
+            "token": {
+              "refresh": "your-refresh-token",
+              "access": "your-access-token"
+            }
+          }
+        }
+      },
+      "Login User": {
+        "API": "/api/authn/login/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Body": {
+          "username": "fNamelastName",
+          "password": "password"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "refresh": "your-refresh-token",
+            "access": "your-access-token"
+          }
+        }
+      },
+      "Logout User": {
+        "API": "/api/authn/logout/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "refresh": "your-refresh-token"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "detail": "Successfully logged out"
+          }
+        }
+      },
+      "Token Refresh": {
+        "API": "/api/authn/refresh/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission, validated by refresh token)",
+        "Body": {
+          "refresh": "your-refresh-token"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "access": "new-access-token",
+            "refresh": "new-refresh-token"
+          }
+        }
+      }
+    },
+    "users": {
+      "Get User Profile": {
+        "API": "/api/users/profile/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "username": "fNamelastName",
+            "email": "fName@example.com",
+            "first_name": "fName",
+            "last_name": "lastName",
+            "full_name": "fName lastName",
+            "profile": {
+              "phone": "1234567890",
+              "address": "123 Main St",
+              "city": "Alex",
+              "postal_code": "12345",
+              "country": "Egypt",
+              "created_at": "time(now)",
+              "updated_at": "time(now)"
+            },
+            "is_staff": false,
+            "favorites_count": 0,
+            "cart_items_count": 0
+          }
+        }
+      },
+      "Update User Profile": {
+        "API": "/api/users/profile/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "first_name": "fName",
+          "last_name": "lastName",
+          "phone": "1234567890",
+          "address": "123 Main St",
+          "city": "Alex",
+          "postal_code": "12345",
+          "country": "Egypt"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "username": "fNamelastName",
+            "email": "fName_new@example.com",
+            "first_name": "fName",
+            "last_name": "lastName",
+            "full_name": "fName lastName",
+            "profile": {
+              "phone": "1234567890",
+              "address": "123 Main St",
+              "city": "Alex",
+              "postal_code": "12345",
+              "country": "Egypt",
+              "created_at": "2025-06-05T13:52:00Z",
+              "updated_at": "2025-06-05T13:52:00Z"
+            },
+            "is_staff": false,
+            "favorites_count": 0,
+            "cart_items_count": 0,
+            "token": {
+              "access": "new-access-token",
+              "refresh": "new-refresh-token"
+            }
+          }
+        }
+      },
+      "Update User Password": {
+        "API": "/api/users/profile/update-password/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "old_password": "your_old_password",
+          "new_password": "your_new_password",
+          "confirm_password": "your_new_password"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "detail": "Password updated successfully."
+          }
+        }
+      },
+      "Get All Users": {
+        "API": "/api/users/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Query Parameters": {
+          "page size": "/api/users/?page_size=20",
+          "all": "/api/users/?all=true"
+        },
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 1,
+            "current_count": 1,
+            "next": null,
+            "previous": null,
+            "page": 1,
+            "total_pages": 1,
+            "results": [
+              {
+                "id": 1,
+                "username": "fNamelastName",
+                "email": "fName@example.com",
+                "first_name": "fName",
+                "last_name": "lastName",
+                "full_name": "fName lastName",
+                "profile": {
+                  "phone": "1234567890",
+                  "address": "123 Main St",
+                  "city": "Alex",
+                  "postal_code": "12345",
+                  "country": "Egypt",
+                  "created_at": "2025-06-05T13:52:00Z",
+                  "updated_at": "2025-06-05T13:52:00Z"
+                },
+                "is_staff": false,
+                "favorites_count": 0,
+                "cart_items_count": 0
+              }
+            ]
+          }
+        }
+      },
+      "Get User By ID": {
+        "API": "/api/users/1/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "username": "fNamelastName",
+            "email": "fName@example.com",
+            "first_name": "fName",
+            "last_name": "lastName",
+            "full_name": "fName lastName",
+            "profile": {
+              "phone": "1234567890",
+              "address": "123 Main St",
+              "city": "Alex",
+              "postal_code": "12345",
+              "country": "Egypt",
+              "created_at": "2025-06-05T13:52:00Z",
+              "updated_at": "2025-06-05T13:52:00Z"
+            },
+            "is_staff": false,
+            "favorites_count": 0,
+            "cart_items_count": 0
+          }
+        }
+      },
+      "Update User (Admin)": {
+        "API": "/api/users/1/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "username": "fNamelastName",
+          "email": "fName_new@example.com",
+          "name": "fName Updated",
+          "first_name": "fName",
+          "last_name": "lastName",
+          "phone": "1234567890",
+          "address": "123 Main St",
+          "city": "Alex",
+          "postal_code": "12345",
+          "country": "Egypt",
+          "is_staff": true
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "username": "fNamelastName",
+            "email": "fName_new@example.com",
+            "first_name": "fName Updated",
+            "last_name": "lastName",
+            "full_name": "fName Updated lastName",
+            "profile": {
+              "phone": "1234567890",
+              "address": "123 Main St",
+              "city": "Alex",
+              "postal_code": "12345",
+              "country": "Egypt",
+              "created_at": "2025-06-05T13:52:00Z",
+              "updated_at": "2025-06-05T13:52:00Z"
+            },
+            "is_staff": true,
+            "favorites_count": 0,
+            "cart_items_count": 0,
+            "token": {
+              "access": "new-access-token",
+              "refresh": "new-refresh-token"
+            }
+          }
+        }
+      },
+      "Delete User": {
+        "API": "/api/users/1/delete/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "204 No Content",
+          "data": {
+            "detail": "User was deleted"
+          }
+        }
+      }
+    },
+    "products": {
+      "Get All Products": {
+        "API": "/api/products/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Query Parameters": {
+          "keyword": "/api/products/?keyword=phone",
+          "category": "/api/products/?category=tv",
+          "tag": "/api/products/?tag=electronics",
+          "min price": "/api/products/?min_price=100",
+          "max price": "/api/products/?max_price=1000",
+          "sort (price_asc / price_desc / rating_desc)": "/api/products/?sort=price_asc",
+          "all": "/api/products/?all=true",
+          "page size": "/api/products/?page_size=20",
+          "limit": "/api/products/?limit=10",
+          "offset": "/api/products/?offset=0",
+          "page": "/api/products/?page=1",
+          "all query": "/api/products/?keyword=phone&category=tv&tag=electronics&min_price=100&max_price=100000&sort=price_asc&all=false&limit=10&offset=0&page=1"
+        },
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 413,
+            "current_count": 1,
+            "page": 1,
+            "total_pages": 50,
+            "next": "http://127.0.0.1:8000/api/products/?page=2",
+            "previous": null,
+            "results": [
+              {
+                "id": 1,
+                "name": "Smartphone",
+                "slug": "smartphone-a9m",
+                "brand_name": "TechBrand",
+                "category_name": "Electronics",
+                "model": "Rockerz 370",
+                "color": "black",
+                "is_new_arrival": false,
+                "is_popular": false,
+                "is_on_sale": true,
+                "description": "A high-end smartphone",
+                "num_reviews": 2,
+                "average_rating": 4.5,
+                "price": "500.00",
+                "discount": 10,
+                "final_price": "450",
+                "stock": 10,
+                "image": "media/placeholder.png",
+                "created_at": "time(now)",
+                "reviews": [
+                  {
+                    "user": "fName lName",
+                    "rating": 4,
+                    "comment": "Great product!",
+                    "created_at": "time(now)"
+                  }
+                ],
+                "tags": ["New", "Popular", "Sale"],
+                "is_visible": false
+              }
+            ]
+          }
+        }
+      },
+      "Get Product by ID": {
+        "API": "/api/products/1/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "name": "Smartphone",
+            "slug": "smartphone-a9m",
+            "brand_name": "TechBrand",
+            "category_name": "Electronics",
+            "model": "Rockerz 370",
+            "color": "black",
+            "is_new_arrival": false,
+            "is_popular": false,
+            "is_on_sale": true,
+            "description": "A high-end smartphone",
+            "num_reviews": 2,
+            "average_rating": 4.5,
+            "price": "500.00",
+            "discount": 10,
+            "final_price": "450",
+            "stock": 10,
+            "image": "media/placeholder.png",
+            "created_at": "time(now)",
+            "reviews": [
+              {
+                "user": "fName lName",
+                "rating": 4,
+                "comment": "Great product!",
+                "created_at": "time(now)"
+              }
+            ],
+            "tags": ["New", "Popular", "Sale"],
+            "is_visible": true
+          }
+        }
+      },
+      "Create Product": {
+        "API": "/api/products/create/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "Smartphone Sumsung",
+          "brand": 1,
+          "category": 1,
+          "model": "Rockerz 370",
+          "color": "black",
+          "is_new_arrival": false,
+          "is_popular": false,
+          "is_on_sale": true,
+          "description": "A high-end smartphone",
+          "price": "500.00",
+          "discount": 10,
+          "stock": 10,
+          "external_id": "SP123",
+          "source_server": "Server1",
+          "image_url": "",
+          "image_field": "media/placeholder.png",
+          "tags": ["New", "Popular", "Sale"],
+          "is_published": true,
+          "published_at": "2025-06-25T14:30:00Z"
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "id": 1,
+            "name": "Smartphone Sumsung",
+            "slug": "smartphone-sumsung-a5l",
+            "brand_name": "TechBrand",
+            "category_name": "Electronics",
+            "model": "Rockerz 370",
+            "color": "black",
+            "is_new_arrival": false,
+            "is_popular": false,
+            "is_on_sale": true,
+            "description": "A high-end smartphone",
+            "num_reviews": 0,
+            "average_rating": 0.0,
+            "price": "500.00",
+            "discount": 10,
+            "final_price": "450",
+            "stock": 10,
+            "image": "media/placeholder.png",
+            "created_at": "time(now)",
+            "reviews": [],
+            "tags": ["New", "Popular", "Sale"],
+            "is_visible": true
+          }
+        }
+      },
+      "Update Product": {
+        "API": "/api/products/1/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "Smartphone Pro",
+          "price": "600.00",
+          "model": "Rockerz 370",
+          "color": "black",
+          "is_new_arrival": false,
+          "is_popular": false,
+          "is_on_sale": true,
+          "stock": 15,
+          "is_published": true,
+          "published_at": "2025-06-25T14:30:00Z"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "name": "Smartphone Pro",
+            "slug": "smartphone-pro-m9h",
+            "brand_name": "TechBrand",
+            "category_name": "Electronics",
+            "model": "Rockerz 370",
+            "color": "black",
+            "is_new_arrival": false,
+            "is_popular": false,
+            "is_on_sale": true,
+            "description": "A high-end smartphone",
+            "num_reviews": 2,
+            "average_rating": 4.5,
+            "price": "600.00",
+            "discount": 10,
+            "final_price": "540",
+            "stock": 15,
+            "image": "media/placeholder.png",
+            "created_at": "time(now)",
+            "reviews": [
+              {
+                "user": "fName lName",
+                "rating": 4,
+                "comment": "Great product!",
+                "created_at": "time(now)"
+              }
+            ],
+            "tags": ["New", "Popular", "Sale"],
+            "is_visible": true
+          }
+        }
+      },
+      "Delete Product": {
+        "API": "/api/products/1/delete/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "204 No Content",
+          "data": {
+            "detail": "Product deleted successfully"
+          }
+        }
+      },
+      "Upload Product Image": {
+        "API": "/api/products/upload/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "multipart/form-data",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "product_id": "1",
+          "image": "binary_image_file"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "detail": "Image was uploaded"
+          }
+        }
+      }
+    },
+    "reviews": {
+      "Create Product Review": {
+        "API": "/api/products/1/reviews/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "rating": 4,
+          "comment": "Great product!"
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "detail": "Review added"
+          }
+        }
+      }
+    },
+    "brands": {
+      "Get All Brands": {
+        "API": "/api/products/brands/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Body": {},
+        "Query Parameters": {
+          "page size": "/api/products/brands/?page_size=1",
+          "all": "/api/products/brands/?all=true"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 13,
+            "current_count": 1,
+            "next": "http://127.0.0.1:8000/api/products/brands/?page=2",
+            "previous": null,
+            "page": 1,
+            "total_pages": 5,
+            "results": [
+              {
+                "id": 1,
+                "name": "Tech Brand",
+                "slug": "tech-brand"
+              }
+            ]
+          }
+        }
+      },
+      "Create Brand": {
+        "API": "/api/products/brands/create/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "New Brand"
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "id": 2,
+            "name": "New Brand",
+            "slug": "new-brand"
+          }
+        }
+      },
+      "Update Brand": {
+        "API": "/api/products/brands/1/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "Updated Brand"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "name": "Updated Brand",
+            "slug": "updated-brand"
+          }
+        }
+      },
+      "Delete Brand": {
+        "API": "/api/products/brands/1/delete/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "204 No Content",
+          "data": {
+            "detail": "Brand deleted successfully"
+          }
+        }
+      }
+    },
+    "categories": {
+      "Get All Categories": {
+        "API": "/api/products/categories/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json"
+        },
+        "Authorization": "No authorization required (AllowAny permission)",
+        "Query Parameters": {
+          "page size": "/api/products/categories/?page_size=20",
+          "all": "/api/products/categories/?all=true"
+        },
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 37,
+            "current_count": 1,
+            "next": "http://127.0.0.1:8000/api/products/categories/?page=2",
+            "previous": null,
+            "page": 1,
+            "total_pages": 5,
+            "results": [
+              {
+                "id": 1,
+                "name": "Electronics",
+                "slug": "electronics"
+              }
+            ]
+          }
+        }
+      },
+      "Create Category": {
+        "API": "/api/products/categories/create/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "New Category"
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "id": 2,
+            "name": "New Category",
+            "slug": "new-category"
+          }
+        }
+      },
+      "Update Category": {
+        "API": "/api/products/categories/1/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {
+          "name": "Updated Category"
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "name": "Updated Category",
+            "slug": "updated-category"
+          }
+        }
+      },
+      "Delete Category": {
+        "API": "/api/products/categories/1/delete/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "204 No Content",
+          "data": {
+            "detail": "Category deleted successfully"
+          }
+        }
+      }
+    },
+    "orders": {
+      "Add Order Items": {
+        "API": "/api/orders/add/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "orderItems": [
+            {
+              "product": 1,
+              "qty": 2
+            }
+          ],
+          "paymentMethod": "cash",
+          "shippingAddress": {
+            "address": "123 Main St",
+            "city": "Alex",
+            "postalCode": "12345",
+            "country": "Egypt",
+            "phone": "0123456789"
+          }
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "id": 1,
+            "user": {
+              "username": "username",
+              "email": "fName@example.com",
+              "full_name": "fName lastName",
+              "phone": "0123456789"
+            },
+            "paymentMethod": "cash",
+            "totalPrice": "1320.24",
+            "taxPrice": 50.0,
+            "shippingPrice": 10.0,
+            "isPaid": false,
+            "paidAt": null,
+            "isDelivered": false,
+            "deliveredAt": null,
+            "formatted_created_at": "June 05, 2025 02:17 PM",
+            "status": "pending",
+            "orderItems": [
+              {
+                "id": 1,
+                "product_id": 1,
+                "name": "Smartphone",
+                "qty": 2,
+                "original_price": "708.00",
+                "discount": 11,
+                "final_price": "630.12",
+                "total": "1260.24",
+                "image": "/placeholder.png"
+              }
+            ],
+            "shippingAddress": {
+              "id": 1,
+              "address": "123 Main St",
+              "city": "Alex",
+              "postalCode": "12345",
+              "country": "Egypt",
+              "phone": "0123456789"
+            }
+          }
+        }
+      },
+      "Get Order by ID": {
+        "API": "/api/orders/1/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission, user must be order owner or admin)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "id": 1,
+            "user": {
+              "username": "username",
+              "email": "fName@example.com",
+              "full_name": "fName lastName",
+              "phone": "0123456789"
+            },
+            "paymentMethod": "cash",
+            "totalPrice": "1320.24",
+            "taxPrice": 50.0,
+            "shippingPrice": 10.0,
+            "isPaid": false,
+            "paidAt": null,
+            "isDelivered": false,
+            "deliveredAt": null,
+            "formatted_created_at": "time(now).formatted",
+            "status": "pending",
+            "orderItems": [
+              {
+                "id": 1,
+                "product_id": 1,
+                "name": "Smartphone",
+                "qty": 2,
+                "original_price": "708.00",
+                "discount": 11,
+                "final_price": "630.12",
+                "total": "1260.24",
+                "image": "/placeholder.png"
+              }
+            ],
+            "shippingAddress": {
+              "id": 1,
+              "address": "123 Main St",
+              "city": "Alex",
+              "postalCode": "12345",
+              "country": "Egypt",
+              "phone": "0123456789"
+            }
+          }
+        }
+      },
+      "Update Order to Paid": {
+        "API": "/api/orders/1/pay/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission recommended for admin only)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "detail": "Order payment updated successfully"
+          }
+        }
+      },
+      "Get My Orders": {
+        "API": "/api/orders/myorders/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Query Parameters": {
+          "page size": "/api/orders/myorders/?page_size=20",
+          "all": "/api/orders/myorders/?all=true"
+        },
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 1,
+            "current_count": 1,
+            "next": null,
+            "previous": null,
+            "page": 1,
+            "total_pages": 1,
+            "results": [
+              {
+                "id": 1,
+                "user": {
+                  "username": "username",
+                  "email": "fName@example.com",
+                  "full_name": "fName lastName",
+                  "phone": "0123456789"
+                },
+                "paymentMethod": "cash",
+                "totalPrice": "1320.24",
+                "taxPrice": 50.0,
+                "shippingPrice": 10.0,
+                "isPaid": false,
+                "paidAt": null,
+                "isDelivered": false,
+                "deliveredAt": null,
+                "formatted_created_at": "June 05, 2025 02:17 PM",
+                "status": "pending",
+                "orderItems": [
+                  {
+                    "id": 1,
+                    "product_id": 1,
+                    "name": "Smartphone",
+                    "qty": 2,
+                    "original_price": "708.00",
+                    "discount": 11,
+                    "final_price": "630.12",
+                    "total": "1260.24",
+                    "image": "/placeholder.png"
+                  }
+                ],
+                "shippingAddress": {
+                  "id": 1,
+                  "address": "123 Main St",
+                  "city": "Alex",
+                  "postalCode": "12345",
+                  "country": "Egypt",
+                  "phone": "0123456789"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Get All Orders": {
+        "API": "/api/orders/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Query Parameters": {
+          "page size": "/api/orders/?page_size=20",
+          "all": "/api/orders/?all=true"
+        },
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "count": 1,
+            "current_count": 1,
+            "next": null,
+            "previous": null,
+            "page": 1,
+            "total_pages": 1,
+            "results": [
+              {
+                "id": 1,
+                "user": {
+                  "username": "username",
+                  "email": "fName@example.com",
+                  "full_name": "fName lastName",
+                  "phone": "0123456789"
+                },
+                "paymentMethod": "cash",
+                "totalPrice": "1320.24",
+                "taxPrice": 50.0,
+                "shippingPrice": 10.0,
+                "isPaid": false,
+                "paidAt": null,
+                "isDelivered": false,
+                "deliveredAt": null,
+                "formatted_created_at": "time(now).formatted",
+                "status": "pending",
+                "orderItems": [
+                  {
+                    "id": 1,
+                    "product_id": 1,
+                    "name": "Smartphone",
+                    "qty": 2,
+                    "original_price": "708.00",
+                    "discount": 11,
+                    "final_price": "630.12",
+                    "total": "1260.24",
+                    "image": "/placeholder.png"
+                  }
+                ],
+                "shippingAddress": {
+                  "id": 1,
+                  "address": "123 Main St",
+                  "city": "Alex",
+                  "postalCode": "12345",
+                  "country": "Egypt",
+                  "phone": "0123456789"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Update Order to Delivered": {
+        "API": "/api/orders/1/deliver/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAdminUser permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "detail": "Order delivery updated successfully"
+          }
+        }
+      }
+    },
+    "favorites": {
+      "Get Favorites": {
+        "API": "/api/favorites/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": [
+            {
+              "id": 1,
+              "product_id": 1,
+              "product_name": "Smartphone",
+              "product_image": "/placeholder.png",
+              "product_price": "500.00",
+              "product_discount": 10,
+              "product_final_price": "450.00",
+              "added_at": "time(now)"
+            }
+          ]
+        }
+      },
+      "Add to Favorites": {
+        "API": "/api/favorites/add/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "product_id": 1
+        },
+        "Expected Response": {
+          "status": "201 Created",
+          "data": {
+            "message": "Added to favorites"
+          }
+        }
+      },
+      "Remove from Favorites": {
+        "API": "/api/favorites/1/remove/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "Removed from favorites"
+          }
+        }
+      },
+      "Clear Favorites": {
+        "API": "/api/favorites/clear/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "2 favorites cleared"
+          }
+        }
+      }
+    },
+    "cart": {
+      "Get Cart Items": {
+        "API": "/api/cart/",
+        "Method": "GET",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "cart_items": [
+              {
+                "id": 1,
+                "product_id": 1,
+                "product_name": "Smartphone",
+                "product_price": "500.00",
+                "product_discount": 10,
+                "product_final_price": "450.00",
+                "product_image": "/placeholder.png",
+                "quantity": 2,
+                "added_at": "2025-06-05T14:26:00Z",
+                "subtotal": 900.0
+              }
+            ],
+            "total": 1000.0
+          }
+        }
+      },
+      "Add to Cart": {
+        "API": "/api/cart/add/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "product_id": 1,
+          "quantity": 2
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "Product added to cart"
+          }
+        }
+      },
+      "Add All Favorites to Cart": {
+        "API": "/api/cart/add-from-favorites/",
+        "Method": "POST",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "2 item(s) added to cart from favorites.",
+            "skipped": [
+              {
+                "product_id": 2,
+                "reason": "Out of stock"
+              }
+            ]
+          }
+        }
+      },
+      "Update Cart Item": {
+        "API": "/api/cart/1/update/",
+        "Method": "PUT",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {
+          "quantity": 3
+        },
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "Cart item updated"
+          }
+        }
+      },
+      "Remove from Cart": {
+        "API": "/api/cart/1/remove/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "Product removed from cart"
+          }
+        }
+      },
+      "Clear Cart": {
+        "API": "/api/cart/clear/",
+        "Method": "DELETE",
+        "Headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer your-access-token"
+        },
+        "Authorization": "Requires valid JWT access token (IsAuthenticated permission)",
+        "Body": {},
+        "Expected Response": {
+          "status": "200 OK",
+          "data": {
+            "message": "Cart cleared successfully"
+          }
+        }
+      }
+    }
+  }
+}

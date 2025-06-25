@@ -1,0 +1,341 @@
+{% load json_tags %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <style>
+        .method-badge {
+            font-size: 1rem;
+            padding: 0.25em 0.6em;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+        }
+
+        .GET {
+            background-color: #61affe;
+        }
+
+        .POST {
+            background-color: #49cc90;
+        }
+
+        .PUT {
+            background-color: #fca130;
+        }
+
+        .DELETE {
+            background-color: #f93e3e;
+        }
+
+        .method-style-GET {
+            background-color: #eaf2fa;
+            border-color: #61affe !important;
+            box-shadow: 0 2px 4px rgba(97, 175, 254, 0.4) !important;
+        }
+
+        .method-style-POST {
+            background-color: #e7f5ef;
+            border-color: #49cc90 !important;
+            box-shadow: 0 2px 4px rgba(73, 204, 144, 0.4) !important;
+        }
+
+        .method-style-PUT {
+            background-color: #faf0e5;
+            border-color: #fca130 !important;
+            box-shadow: 0 2px 4px rgba(252, 161, 48, 0.4) !important;
+        }
+
+        .method-style-DELETE {
+            background-color: #f9e6e6;
+            border-color: #f93e3e !important;
+            box-shadow: 0 2px 4px rgba(249, 62, 62, 0.4) !important;
+        }
+
+        .accordion-button:hover {
+            filter: brightness(0.98);
+            transition: 0.2s;
+        }
+
+        .method-style-GET.collapsed,
+        .method-style-POST.collapsed,
+        .method-style-PUT.collapsed,
+        .method-style-DELETE.collapsed {
+            color: #3b4151;
+        }
+
+        .method-style-GET:not(.collapsed) {
+            background-color: #eaf2fa !important;
+            color: #2f5983 !important;
+        }
+
+        .method-style-POST:not(.collapsed) {
+            background-color: #e7f5ef !important;
+            color: #266e4e !important;
+        }
+
+        .method-style-PUT:not(.collapsed) {
+            background-color: #faf0e5 !important;
+            color: #965e1b !important;
+        }
+
+        .method-style-DELETE:not(.collapsed) {
+            background-color: #f9e6e6 !important;
+            color: #6d1a1a !important;
+        }
+
+        .copy-btn {
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 8px;
+            color: #007bff;
+        }
+
+        .accordion-body {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <button onclick="scrollToTop()" id="goTopBtn"
+            class="btn btn-success btn-outline-secondary text-light position-fixed rounded-circle"
+            style="bottom: 20px; right: 20px; display: none; z-index: 1050;">
+            <i class="fa-solid fa-angles-up"></i>
+        </button>
+
+
+        <div class="p-4 mb-4 rounded-3 shadow-sm" style="background-color: #f5f7fa;">
+            <h1 class="h3 mb-3 d-flex align-items-center fw-bold text-dark-emphasis">
+                <i class="fa-solid fa-book me-2 text-info-emphasis fs-4"></i>
+                API Documentation
+            </h1>
+            <div class="row small text-muted">
+                <div class="col-md-4 mb-2">
+                    <strong>Version:</strong> {{ version }}
+                </div>
+                <div class="col-md-4 mb-2">
+                    <strong>Last Updated:</strong> {{ last_updated }}
+                </div>
+                <div class="col-md-4 mb-2">
+                    <strong>Author:</strong> {{ author }}
+                </div>
+            </div>
+            <hr class="my-3">
+            <p class="mb-0 text-dark-emphasis"><strong>Description:</strong></p>
+            <p class="text-muted mb-0">{{ description }}</p>
+        </div>
+
+
+        <input type="text" id="searchInput" class="form-control mb-4 position-sticky z-3 w-75 mx-auto"
+            style="top: 10px;" placeholder="🔍 Search...">
+
+        {% for module, endpoints in api_data.items %}
+        <div class="mt-4">
+            <h3 class="mx-3 text-dark-emphasis fw-bolder">{{ module|title }}</h3>
+            <div class="accordion" id="accordion-{{ module }}">
+                {% for ep in endpoints %}
+                <div class="accordion-item mb-2 endpoint-item">
+                    <h2 class="accordion-header">
+                        <button
+                            class="accordion-button collapsed py-2 px-4 border border-1 shadow-sm method-style-{{ ep.method|upper }} "
+                            style="height: 50px;" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapse-{{ module }}-{{ forloop.counter }}">
+                            <div class="w-100 d-flex justify-content-between align-items-center">
+                                <p class="fw-bold  mb-0">{{ ep.name }}</p>
+                                <span class="method-badge {{ ep.method|upper }} me-2">{{ ep.method }}</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ module }}-{{ forloop.counter }}" class="accordion-collapse collapse">
+                        <div class="accordion-body ">
+                            <ul class="nav nav-tabs " id="tab-{{ module }}-{{ forloop.counter }}" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="tab-details-{{ module }}-{{ forloop.counter }}"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-details-pane-{{ module }}-{{ forloop.counter }}"
+                                        type="button" role="tab">Details</button>
+                                </li>
+                                {% if ep.querys %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-querys-{{ module }}-{{ forloop.counter }}"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-querys-pane-{{ module }}-{{ forloop.counter }}"
+                                        type="button" role="tab">Query Parameters</button>
+                                </li>
+                                {% endif %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-body-{{ module }}-{{ forloop.counter }}"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-body-pane-{{ module }}-{{ forloop.counter }}" type="button"
+                                        role="tab">Body</button>
+                                </li>
+                                <li class="nav-item " role="presentation">
+                                    <button class="nav-link " id="tab-response-{{ module }}-{{ forloop.counter }}"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#tab-response-pane-{{ module }}-{{ forloop.counter }}"
+                                        type="button" role="tab">Response</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content mt-2">
+                                <div class="tab-pane fade show active table-responsive"
+                                    id="tab-details-pane-{{ module }}-{{ forloop.counter }}" role="tabpanel">
+                                    <table class="table table-bordered table-striped table-sm mt-3">
+                                        <tbody>
+                                            <tr>
+                                                <th class="px-2">URL</th>
+                                                <td class="p-2">
+                                                    <code data-bs-toggle="tooltip"
+                                                        data-bs-original-title="Go To Link"><a href="http://127.0.0.1:8000{{ ep.api }}" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000{{ ep.api }}</a></code>
+                                                    <span class="copy-btn ms-2">
+                                                        <i onclick="copyText(this, `http:/\/127.0.0.1:8000{{ ep.api }}`)"
+                                                            class="fa-solid fa-copy" data-bs-toggle="tooltip"
+                                                            title="Copy"></i>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th class="px-2">Method</th>
+                                                <td class="p-2">
+                                                    <span
+                                                        class="method-badge {{ ep.method|upper }}">{{ep.method}}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th style="width: 120px;" class="px-2">Authorization</th>
+                                                <td class="p-2">{{ ep.auth }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="px-2">Headers</th>
+                                                <td>
+                                                    <pre
+                                                        class="my-0 rounded-3"><code class="language-json">{{ ep.headers | tojson }}</code></pre>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if ep.querys %}
+                                <div class="tab-pane fade table-responsive"
+                                    id="tab-querys-pane-{{ module }}-{{ forloop.counter }}" role="tabpanel">
+                                    <table class="table table-bordered table-striped table-sm mt-3">
+                                        <tbody>
+                                            {% for key, value in ep.querys.items %}
+                                            <tr>
+                                                <th class="px-2" style="min-width: 100px;">{{ key|title }}</th>
+                                                <td class="p-2">
+                                                    <code data-bs-toggle="tooltip"
+                                                        data-bs-original-title="Go To Link"><a href="http://127.0.0.1:8000{{ value }}" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000{{ value }}</a></code>
+                                                    <span class="copy-btn ms-2">
+                                                        <i onclick="copyText(this, `http:/\/127.0.0.1:8000{{ value }}`)"
+                                                            class="fa-solid fa-copy" data-bs-toggle="tooltip"
+                                                            title="Copy"></i>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                                <div class="tab-pane fade" id="tab-body-pane-{{ module }}-{{ forloop.counter }}"
+                                    role="tabpanel">
+                                    <b>Body:</b>
+                                    <span class="copy-btn">
+                                        <i onclick="copyText(this, `{{ ep.body | tojson }}`)" class="fa-solid fa-copy"
+                                            data-bs-toggle="tooltip" title="Copy"></i>
+                                    </span>
+                                    <pre
+                                        class="rounded-3"><code class="language-json">{{ ep.body | tojson }}</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab-response-pane-{{ module }}-{{ forloop.counter }}"
+                                    role="tabpanel">
+                                    <b>Expected Response:</b>
+                                    <span class="copy-btn">
+                                        <i onclick="copyText(this, `{{ ep.response | tojson}}`)"
+                                            class="fa-solid fa-copy" data-bs-toggle="tooltip" title="Copy"></i>
+                                    </span>
+                                    <table class="table table-bordered table-striped table-sm mt-3">
+                                        <tr>
+                                            <th class="ps-4 py-2" style="width: 190px;"> Status</th>
+                                            <td class="py-2 px-4 fw-bold">
+                                                <span class="method-badge bg-success">
+                                                    {{ep.response_status}}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <pre
+                                        class="rounded-3"><code class="language-json">{{ ep.response_data | tojson }}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <small>&copy; {% now "Y"%} {{ author }} — API Documentation</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/503a95505c.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+        window.onscroll = function () {
+            const btn = document.getElementById("goTopBtn");
+            if (window.scrollY > 200) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copyText(icon, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log("hello")
+                icon.classList.replace('fa-copy', 'fa-check');
+                icon.setAttribute('data-bs-original-title', 'Copied!');
+                bootstrap.Tooltip.getInstance(icon).show();
+                setTimeout(() => {
+                    icon.setAttribute('data-bs-original-title', 'Copy');
+                    bootstrap.Tooltip.getInstance(icon).hide();
+                    icon.classList.replace('fa-check', 'fa-copy');
+                }, 4000);
+            });
+        }
+
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll(".endpoint-item").forEach(function (item) {
+                const text = item.innerText.toLowerCase();
+                item.style.display = text.includes(query) ? "" : "none";
+            });
+        });
+
+    </script>
+</body>
+
+</html>

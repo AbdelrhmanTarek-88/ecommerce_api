@@ -1,0 +1,6 @@
+{% extends 'error_base.html' %}
+
+{% block title %}Unauthorized{% endblock %}
+{% block error_code %}<h1>401</h1>{% endblock %}
+{% block message %}<p>You need to log in to access this page.</p>{% endblock %}
+{% block link %}<a href="/">Go to login</a>{% endblock %}
