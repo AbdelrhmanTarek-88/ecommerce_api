@@ -6,9 +6,12 @@ from rest_framework import status
 from products.models import Product, Brand, Category
 from products.serializers import ProductSerializer
 from core.pagination import CustomPageNumberPagination, CustomLimitOffsetPagination
+from django.db.models import Case, When, Value, BooleanField
+from django.utils import timezone
+from datetime import timedelta
 
 @api_view(['GET'])
-@cache_page(60 * 2)
+@cache_page(30)
 def getProducts(request):
     # Query Params
     keyword = request.query_params.get('keyword', '')
@@ -17,21 +20,36 @@ def getProducts(request):
     min_price = request.query_params.get('min_price')
     max_price = request.query_params.get('max_price')
     sort = request.query_params.get('sort', '')
+    is_discount_active = request.query_params.get("discount_limited") == "true"
+    is_new_arrival = request.query_params.get("new") == "true"
+    is_popular = request.query_params.get("popular") == "true"
+    min_discount = request.query_params.get("min_discount")
+    max_discount = request.query_params.get("max_discount")
 
-    # Validate and parse prices
+    # --- Validate numeric filters ---
     try:
         min_price = float(min_price) if min_price is not None else None
         max_price = float(max_price) if max_price is not None else None
+        min_discount = int(min_discount) if min_discount is not None else None
+        max_discount = int(max_discount) if max_discount is not None else None
 
         if min_price is not None and min_price < 0:
-            return Response({'detail': 'Minimum price cannot be negative'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Minimum price cannot be negative."}, status=400)
         if max_price is not None and max_price < 0:
-            return Response({'detail': 'Maximum price cannot be negative'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Maximum price cannot be negative."}, status=400)
         if min_price is not None and max_price is not None and min_price > max_price:
-            return Response({'detail': 'Minimum price cannot be greater than maximum price'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Minimum price cannot be greater than maximum price."}, status=400)
+
+        if min_discount is not None and (min_discount < 0 or min_discount > 100):
+            return Response({"detail": "Minimum discount must be between 0 and 100."}, status=400)
+        if max_discount is not None and (max_discount < 0 or max_discount > 100):
+            return Response({"detail": "Maximum discount must be between 0 and 100."}, status=400)
+        if min_discount is not None and max_discount is not None and min_discount > max_discount:
+            return Response({"detail": "Minimum discount cannot be greater than maximum discount."}, status=400)
 
     except (ValueError, TypeError):
-        return Response({'detail': 'Invalid price format'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Invalid numeric input."}, status=400)
+
 
     # Validate sort
     sort_map = {
@@ -46,16 +64,45 @@ def getProducts(request):
             'detail': f'Invalid sort value. Allowed values are: {", ".join([k or "default" for k in sort_map.keys()])}'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    products = products.order_by(sort_map[sort])
-
     # Build queryset
-    products = Product.objects.select_related('user', 'brand', 'category').all()
+    products = Product.objects.select_related('user', 'brand', 'category').filter(is_published=True)
+
+    # Annotate properties as real DB fields
+    products = products.annotate(
+    has_active_discount=Case(
+        When(
+            discount__gt=0,
+            discount_start__lte=timezone.now(),
+            discount_end__gte=timezone.now(),
+            then=Value(True)
+        ),
+        default=Value(False),
+        output_field=BooleanField()
+    ),
+    is_recent_arrival=Case(
+        When(
+            published_at__gte=timezone.now() - timedelta(days=7),
+            then=Value(True)
+        ),
+        default=Value(False),
+        output_field=BooleanField()
+    )
+)
+    if is_discount_active:
+        products = products.filter(has_active_discount=True)
+
+    if is_new_arrival:
+        products = products.filter(is_recent_arrival=True)
+    
+    if is_popular:
+        products = products.filter(is_popular=True)
 
     if keyword:
         products = products.filter(name__icontains=keyword)
 
     if tag:
         products = products.filter(tags__name__icontains=tag)
+
 
     if category_param:
         try:
@@ -67,17 +114,23 @@ def getProducts(request):
     if min_price is not None:
         products = products.filter(price__gte=min_price)
     if max_price is not None:
-        products = products.filter(price__lte=max_price)
+        products = products.filter(price__lte=max_price)   
 
+    if min_discount is not None:
+        products = products.filter(discount__gte=min_discount)
+    if max_discount is not None:
+        products = products.filter(discount__lte=max_discount)
+    
     products = products.order_by(sort_map[sort])
 
     # Pagination
-    if 'page_size' in request.query_params or 'all' in request.query_params:
-        paginator = CustomPageNumberPagination()
-    else:
+    if 'limit' in request.query_params or 'offset' in request.query_params:
         paginator = CustomLimitOffsetPagination()
+    else:
+        paginator = CustomPageNumberPagination()
 
     paginated_products = paginator.paginate_queryset(products, request)
+
     serializer = ProductSerializer(paginated_products, many=True)
     return paginator.get_paginated_response(serializer.data)
 

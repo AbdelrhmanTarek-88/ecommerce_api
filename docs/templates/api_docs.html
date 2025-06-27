@@ -196,7 +196,7 @@
                                                 <th class="px-2">URL</th>
                                                 <td class="p-2">
                                                     <code data-bs-toggle="tooltip"
-                                                        data-bs-original-title="Go To Link"><a href="http://127.0.0.1:8000{{ ep.api }}" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000{{ ep.api }}</a></code>
+                                                        data-bs-original-title="Go To Link"><a href="{{ BASE_URL }}{{ ep.api }}" target="_blank" rel="noopener noreferrer">{{ BASE_URL }}{{ ep.api }}</a></code>
                                                     <span class="copy-btn ms-2">
                                                         <i onclick="copyText(this, `http:/\/127.0.0.1:8000{{ ep.api }}`)"
                                                             class="fa-solid fa-copy" data-bs-toggle="tooltip"
@@ -235,7 +235,7 @@
                                                 <th class="px-2" style="min-width: 100px;">{{ key|title }}</th>
                                                 <td class="p-2">
                                                     <code data-bs-toggle="tooltip"
-                                                        data-bs-original-title="Go To Link"><a href="http://127.0.0.1:8000{{ value }}" target="_blank" rel="noopener noreferrer">http://127.0.0.1:8000{{ value }}</a></code>
+                                                        data-bs-original-title="Go To Link"><a href="{{ BASE_URL }}{{ value }}" target="_blank" rel="noopener noreferrer">{{ BASE_URL }}{{ value }}</a></code>
                                                     <span class="copy-btn ms-2">
                                                         <i onclick="copyText(this, `http:/\/127.0.0.1:8000{{ value }}`)"
                                                             class="fa-solid fa-copy" data-bs-toggle="tooltip"

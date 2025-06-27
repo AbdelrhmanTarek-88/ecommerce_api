@@ -17,3 +17,5 @@ CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv())
 SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(days=1)
 
 TIME_ZONE = 'Africa/Cairo'
+
+BASE_URL = "http://127.0.0.1:8000"

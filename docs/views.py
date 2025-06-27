@@ -1,9 +1,9 @@
 import json
 from django.shortcuts import render
+from django.conf import settings
 import os
 
 def api_docs_view(request):
-
     base_dir = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(base_dir, 'endpoints_test.json')
 
@@ -37,10 +37,9 @@ def api_docs_view(request):
         'description': description,
         'version':version,
         'last_updated':last_updated,
-        'author':author
+        'author':author,
+        'BASE_URL': settings.BASE_URL
     })
-
-
 
 def custom_500_view(request):
     return render(request, '500.html', status=500)

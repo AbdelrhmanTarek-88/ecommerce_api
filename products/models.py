@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.validators import MinValueValidator, MaxValueValidator
 from taggit.managers import TaggableManager
 from django.utils.text import slugify
 import uuid
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
+from datetime import timedelta
 
 class Brand(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -60,15 +62,15 @@ class Product(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         help_text="Enter discount as a percentage (1 - 100)"
     )
+    discount_start = models.DateTimeField(null=True, blank=True)
+    discount_end = models.DateTimeField(null=True, blank=True)
     stock = models.IntegerField(null=True, default=10)
     image_field = models.ImageField(null=True, blank=True,)
     image_url = models.URLField(max_length=1000, null=True, blank=True, default='https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png')
     average_rating = models.FloatField(default=0.0)
     num_reviews = models.IntegerField(default=0)
     is_popular = models.BooleanField(default=False)
-    is_new_arrival = models.BooleanField(default=False)
-    is_on_sale = models.BooleanField(default=False)
-    slug = models.SlugField(max_length=255, null=True, blank=True)
+    slug = models.SlugField(max_length=255, unique=True)
     tags = TaggableManager(blank=True)
     is_published = models.BooleanField(default=True)
     published_at = models.DateTimeField(null=True, blank=True, default=timezone.now)
@@ -81,10 +83,24 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} ({self.source_server or 'Manual'})"
 
+    @property
+    def is_new_arrival(self):
+        if self.is_published and self.published_at:
+            return self.published_at >= timezone.now() - timedelta(days=7)
+        return False
+
+    @property
+    def is_discount_active(self):
+        now = timezone.now()
+        if self.discount in [None, 0]:
+            return False
+        if self.discount_start and self.discount_end:
+            return self.discount_start <= now <= self.discount_end
+        return True
     
     @property
     def final_price(self):
-        if self.discount not in [None, 0]:
+        if self.is_discount_active:
             discount_amount = (Decimal(self.discount) / Decimal(100)) * self.price
             return (self.price - discount_amount).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         return self.price
@@ -107,6 +123,9 @@ class Product(models.Model):
         
         if current_slug_base != new_slug:
             self.slug = unique_slug
+        
+        if not self.is_discount_active:
+            self.discount = 0
         
         super().save(*args, **kwargs)
 

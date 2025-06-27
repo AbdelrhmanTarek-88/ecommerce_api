@@ -19,3 +19,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', cast=Csv())
 
 SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(minutes=5)
+
+BASE_URL = config('BASE_URL')

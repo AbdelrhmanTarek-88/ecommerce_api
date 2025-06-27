@@ -37,13 +37,15 @@ class ProductSerializer(serializers.ModelSerializer, TaggitSerializer):
     final_price = serializers.DecimalField( max_digits=10, decimal_places=2, read_only=True)
     is_published = serializers.BooleanField(required=False, write_only=True)
     published_at = serializers.DateTimeField(required=False, write_only=True)
+    is_new_arrival = serializers.SerializerMethodField()
     is_visible = serializers.SerializerMethodField()
+    is_discount_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
-                'id', 'name', 'slug', 'brand', 'brand_name', 'category', 'category_name', 'model', 'color','is_new_arrival', 'is_popular', 'is_on_sale', 
-                'description', 'num_reviews', 'average_rating', 'price', 'discount', 'final_price','stock',
+                'id', 'name', 'slug', 'brand', 'brand_name', 'category', 'category_name', 'model', 'color','is_new_arrival', 'is_popular', 
+                'description', 'num_reviews', 'average_rating', 'price', 'discount', 'is_discount_active', 'discount_start', 'discount_end', 'final_price','stock',
                 'image','image_field', 'image_url', 'created_at', 'reviews', 'tags', 'is_published', 'published_at', 'is_visible',
             ]
         
@@ -56,6 +58,12 @@ class ProductSerializer(serializers.ModelSerializer, TaggitSerializer):
             except:
                 return None
         return obj.image_url
-    
+
+    def is_new_arrival(self, obj):
+        return obj.is_new_arrival
+
     def get_is_visible(self, obj):
         return obj.is_visible
+
+    def get_is_discount_active(self, obj):
+        return obj.is_discount_active

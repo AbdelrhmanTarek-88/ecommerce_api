@@ -30,7 +30,6 @@ class Command(BaseCommand):
                 'stock_field':'stock',
                 'tags_field':'tags',
                 'popular_field':'popular',
-                'onSale_field':'onSale',
             },
             {
                 'name': 'escuelajs',
@@ -49,7 +48,6 @@ class Command(BaseCommand):
                 'stock_field':'stock',
                 'tags_field':'tags',
                 'popular_field':'popular',
-                'onSale_field':'onSale',
             },
             {
                 'name': 'dummyjson',
@@ -68,7 +66,6 @@ class Command(BaseCommand):
                 'stock_field':'stock',
                 'tags_field':'tags',
                 'popular_field':'popular',
-                'onSale_field':'onSale',
             },
             {
                 'name': 'fakestoreapi.in',
@@ -87,7 +84,6 @@ class Command(BaseCommand):
                 'stock_field':'stock',
                 'tags_field':'tags',
                 'popular_field':'popular',
-                'onSale_field':'onSale',
             },
     ]
     
@@ -125,7 +121,6 @@ class Command(BaseCommand):
                         'model': product_data.get(server['model_field'], ''),
                         'color': product_data.get(server['color_field'], ''),
                         'is_popular': product_data.get(server['popular_field'], False),
-                        'is_on_sale': product_data.get(server['onSale_field'], False),
                         'discount':product_data.get(server['discount_field']),
                         'description': product_data.get(server['description_field']),
                         'category': category_obj,
