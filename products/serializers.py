@@ -52,9 +52,10 @@ class ProductSerializer(serializers.ModelSerializer, TaggitSerializer):
         read_only_fields = ['slug', 'final_price','created_at', 'average_rating', 'num_reviews']
 
     def get_image(self, obj):
+        request = self.context.get('request')
         if obj.image_field:
             try:
-                return obj.image_field.url
+                return request.build_absolute_uri(obj.image_field.url)
             except:
                 return None
         return obj.image_url

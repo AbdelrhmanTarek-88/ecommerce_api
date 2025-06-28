@@ -70,7 +70,7 @@ class Product(models.Model):
     average_rating = models.FloatField(default=0.0)
     num_reviews = models.IntegerField(default=0)
     is_popular = models.BooleanField(default=False)
-    slug = models.SlugField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, blank=True, unique=True)
     tags = TaggableManager(blank=True)
     is_published = models.BooleanField(default=True)
     published_at = models.DateTimeField(null=True, blank=True, default=timezone.now)

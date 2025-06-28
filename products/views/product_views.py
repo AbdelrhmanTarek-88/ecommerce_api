@@ -267,9 +267,17 @@ def uploadImage(request):
         if image:
             if not image.content_type.startswith('image/'):
                 return Response({'detail': 'Invalid image format'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if product.image_field:
+                product.image_field.delete(save=False)
+            
             product.image_field = image
             product.save()
-            return Response({'detail': 'Image was uploaded'})
+            image_url = request.build_absolute_uri(product.image_field.url)
+            return Response({
+                'detail': 'Image was uploaded',
+                'image_url': image_url
+            })
         return Response({'detail': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
     except Product.DoesNotExist:
         return Response({'detail': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
